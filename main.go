@@ -15,8 +15,8 @@ import (
 )
 
 var (
-	notifyOnStart  = flag.Bool("onstart", false, "Show notification on start")
-	notifyInterval = time.Minute * 90
+	notifyOnStart  = flag.Bool("s", false, "Show notification on start")
+	notifyInterval = flag.Duration("i", time.Minute*90, "Notification interval")
 )
 
 const (
@@ -44,7 +44,7 @@ func main() {
 	}
 
 	for {
-		if now := time.Now(); now.Sub(lastChk) >= notifyInterval {
+		if now := time.Now(); now.Sub(lastChk) >= *notifyInterval {
 			notify()
 			lastChk = now
 		}
