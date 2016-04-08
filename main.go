@@ -17,10 +17,10 @@ import (
 var (
 	notifyOnStart  = flag.Bool("s", false, "Show notification on start")
 	notifyInterval = flag.Duration("i", time.Minute*90, "Notification interval")
+	checkInterval  = flag.Duration("c", time.Minute*5, "Check interval")
 )
 
 const (
-	checkInterval       = time.Minute * 5
 	defaultNotification = `Time to take a break!`
 	os                  = runtime.GOOS
 )
@@ -49,7 +49,7 @@ func main() {
 			lastChk = now
 		}
 
-		time.Sleep(checkInterval)
+		time.Sleep(*checkInterval)
 	}
 }
 
