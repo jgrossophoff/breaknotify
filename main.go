@@ -16,7 +16,6 @@ var (
 	endOfNotifications = flag.Duration("end", time.Hour*18, "The time of day to end notifications")
 	notifyOnStart      = flag.Bool("s", false, "Show notification on start")
 	notifyInterval     = flag.Duration("i", time.Minute*90, "Notification interval")
-	checkInterval      = flag.Duration("c", time.Minute*5, "Check interval")
 )
 
 const (
@@ -35,26 +34,22 @@ func main() {
 
 	flag.Parse()
 
-	var lastChk time.Time
-	if !*notifyOnStart {
-		lastChk = time.Now()
+	if *notifyOnStart {
+		notify()
 	}
 
-	for {
-		if now := time.Now(); now.Sub(lastChk) >= *notifyInterval {
-			now := time.Now()
-
-			// Subtract duration from now. If >= 0, then it must be later.
-			if now.Add(-(*endOfNotifications)).Hour() >= 0 {
-				continue
-			}
-
-			notify()
-			lastChk = now
-		}
-
-		time.Sleep(*checkInterval)
+check:
+	now := time.Now()
+	todaysEnd := time.Date(now.Year(), now.Month(), now.Day(), int(endOfNotifications.Hours()), 0, 0, 0, time.Local)
+	if time.Now().After(todaysEnd) {
+		// Remind me tomorrow at 9 o'clock
+		t := time.Date(now.Year(), now.Month(), now.Day()+1, 8, 0, 0, 0, time.Local)
+		time.Sleep(t.Sub(now))
+	} else {
+		time.Sleep(*notifyInterval)
+		notify()
 	}
+	goto check
 }
 
 func notificationBinExists() bool {
